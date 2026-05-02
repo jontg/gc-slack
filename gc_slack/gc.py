@@ -178,3 +178,19 @@ def bead_update(
 
 def bead_close(bead_id: str) -> CmdResult:
     return bd("update", bead_id, "--status", "closed")
+
+
+def session_list_json() -> CmdResult:
+    return gc("session", "list", "--json")
+
+
+def session_peek(agent: str, lines: int = 50) -> CmdResult:
+    return gc("session", "peek", agent, "--lines", str(lines))
+
+
+def city_start() -> CmdResult:
+    return gc("start")
+
+
+def city_stop() -> CmdResult:
+    return gc("stop")

@@ -22,6 +22,21 @@ ALERTS_CHANNEL = os.environ.get("GC_SLACK_ALERTS_CHANNEL", "#gascity-alerts")
 # State tracked between patrol runs
 _last_seen_beads: set[str] = set()
 _last_patrol_at: datetime | None = None
+_patrol_paused: bool = False
+
+
+def pause_patrol() -> None:
+    global _patrol_paused
+    _patrol_paused = True
+    log.info("patrol: paused (city stopped)")
+
+
+def resume_patrol() -> None:
+    global _patrol_paused, _last_seen_beads
+    _patrol_paused = False
+    # Reset bead state so we don't spam stale alerts on resume
+    _last_seen_beads = set()
+    log.info("patrol: resumed (city started)")
 
 
 def _post(slack_client, blocks: list[dict]) -> None:
@@ -36,6 +51,10 @@ def run_patrol(slack_client) -> None:
     global _last_patrol_at
     from gc_slack import gc as gccmd
     from gc_slack.blocks import patrol_alert_blocks
+
+    if _patrol_paused:
+        log.info("patrol: skipping tick — city is stopped")
+        return
 
     now = datetime.now(timezone.utc)
     log.info("patrol: tick at %s", now.isoformat())

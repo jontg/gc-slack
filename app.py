@@ -42,8 +42,10 @@ from gc_slack.blocks import (
     modal_comment_bead,
     modal_create_bead,
     modal_nudge,
+    modal_peek_agent,
     modal_send_mail,
     modal_update_bead,
+    peek_result_blocks,
     success_blocks,
 )
 
@@ -71,7 +73,12 @@ def handle_gc(ack, command, client):
 
     elif sub == "agents":
         r = gccmd.session_list()
-        blocks = agents_blocks(r.stdout) if r.ok else error_blocks(r.stderr or "gc session list failed")
+        rj = gccmd.session_list_json()
+        try:
+            sessions = rj.json if rj.ok else None
+        except Exception:
+            sessions = None
+        blocks = agents_blocks(r.stdout, sessions=sessions) if r.ok else error_blocks(r.stderr or "gc session list failed")
         client.chat_postEphemeral(
             channel=command["channel_id"],
             user=command["user_id"],
@@ -109,11 +116,55 @@ def handle_gc(ack, command, client):
             blocks=blocks,
         )
 
+    elif sub == "start":
+        client.chat_postEphemeral(
+            channel=command["channel_id"],
+            user=command["user_id"],
+            text="⏳ Starting GasCity…",
+        )
+        r = gccmd.city_start()
+        if r.ok:
+            from gc_slack.patrol import resume_patrol
+            resume_patrol()
+            client.chat_postEphemeral(
+                channel=command["channel_id"],
+                user=command["user_id"],
+                blocks=success_blocks("GasCity started", "Patrol alerts resumed."),
+            )
+        else:
+            client.chat_postEphemeral(
+                channel=command["channel_id"],
+                user=command["user_id"],
+                blocks=error_blocks(r.stderr or r.stdout or "gc start failed"),
+            )
+
+    elif sub == "stop":
+        client.chat_postEphemeral(
+            channel=command["channel_id"],
+            user=command["user_id"],
+            text="⏳ Stopping GasCity…",
+        )
+        r = gccmd.city_stop()
+        if r.ok:
+            from gc_slack.patrol import pause_patrol
+            pause_patrol()
+            client.chat_postEphemeral(
+                channel=command["channel_id"],
+                user=command["user_id"],
+                blocks=success_blocks("GasCity stopped", "Patrol alerts paused — no more noise while the city is down."),
+            )
+        else:
+            client.chat_postEphemeral(
+                channel=command["channel_id"],
+                user=command["user_id"],
+                blocks=error_blocks(r.stderr or r.stdout or "gc stop failed"),
+            )
+
     else:
         client.chat_postEphemeral(
             channel=command["channel_id"],
             user=command["user_id"],
-            text=f"Unknown subcommand `{sub}`. Available: status, agents, beads, mail, doctor",
+            text=f"Unknown subcommand `{sub}`. Available: status, agents, beads, mail, doctor, start, stop",
         )
 
 
@@ -227,7 +278,12 @@ def action_status_refresh(ack, body, client):
 def action_agents_list(ack, body, client):
     ack()
     r = gccmd.session_list()
-    blocks = agents_blocks(r.stdout) if r.ok else error_blocks(r.stderr or "failed")
+    rj = gccmd.session_list_json()
+    try:
+        sessions = rj.json if rj.ok else None
+    except Exception:
+        sessions = None
+    blocks = agents_blocks(r.stdout, sessions=sessions) if r.ok else error_blocks(r.stderr or "failed")
     _update_or_ephemeral(client, body, blocks)
 
 
