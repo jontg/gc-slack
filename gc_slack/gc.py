@@ -52,15 +52,19 @@ class CmdResult:
         return json.loads(text)
 
 
-def _run(binary: str, args: list[str]) -> CmdResult:
-    r = subprocess.run(
-        [binary] + args,
-        cwd=GC_CITY_ROOT,
-        capture_output=True,
-        text=True,
-        env=_env(),
-    )
-    return CmdResult(r.stdout, r.stderr, r.returncode, r.returncode == 0)
+def _run(binary: str, args: list[str], timeout: int | None = None) -> CmdResult:
+    try:
+        r = subprocess.run(
+            [binary] + args,
+            cwd=GC_CITY_ROOT,
+            capture_output=True,
+            text=True,
+            env=_env(),
+            timeout=timeout,
+        )
+        return CmdResult(r.stdout, r.stderr, r.returncode, r.returncode == 0)
+    except subprocess.TimeoutExpired:
+        return CmdResult("", "timeout", 124, False)
 
 
 def gc(*args: str) -> CmdResult:
@@ -193,4 +197,4 @@ def city_start() -> CmdResult:
 
 
 def city_stop() -> CmdResult:
-    return gc("stop")
+    return _run(GC_PATH, ["stop"], timeout=10)

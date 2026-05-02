@@ -139,15 +139,17 @@ def handle_gc(ack, command, client):
             )
 
     elif sub == "stop":
+        # Pause patrol immediately — don't wait for gc stop to return
+        # (gc stop can hang even when the city shuts down successfully)
+        from gc_slack.patrol import pause_patrol
+        pause_patrol()
         client.chat_postEphemeral(
             channel=command["channel_id"],
             user=command["user_id"],
-            text="⏳ Stopping GasCity…",
+            text="⏳ Stopping GasCity… (patrol alerts paused now)",
         )
         r = gccmd.city_stop()
-        if r.ok:
-            from gc_slack.patrol import pause_patrol
-            pause_patrol()
+        if r.ok or r.returncode == 124:  # 124 = timeout, city likely stopped anyway
             client.chat_postEphemeral(
                 channel=command["channel_id"],
                 user=command["user_id"],
