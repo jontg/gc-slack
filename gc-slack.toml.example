@@ -1,0 +1,37 @@
+# GasCity Slack Interface Configuration
+# Copy to gc-slack.toml and customize
+
+[slack]
+# Get these from https://api.slack.com/apps
+bot_token = "xoxb-your-bot-token"
+signing_secret = "your-signing-secret"
+# Optional: default channel for patrol alerts
+alerts_channel = "#gascity-alerts"
+
+[gascity]
+# Paths to gc and bd binaries
+gc_path = "/Users/jgretarsson/bin/gc"
+bd_path = "/Users/jgretarsson/bin/bd"
+# City root directory
+city_root = "/Users/jgretarsson/Development/GasCity"
+
+[patrol]
+# Enable background patrol notifications
+enabled = false
+# Check interval in seconds
+interval = 300
+# Events to monitor
+watch_agent_crashes = true
+watch_high_priority_beads = true
+watch_warrants = true
+
+[users]
+# Map Slack user IDs to GasCity aliases
+# Example:
+# U0B0JRSR916 = "jontg@mimir"
+# U123456789 = "alice@gastown"
+
+[commands]
+# Optional: restrict commands to specific users/channels
+# allow_users = ["U0B0JRSR916"]
+# allow_channels = ["C123456789"]
