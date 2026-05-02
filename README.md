@@ -1,5 +1,7 @@
 # gc-slack
 
+<img src="assets/logo.png" alt="gc-slack logo" width="120" />
+
 Native Slack interface for GasCity. Runs entirely in **Socket Mode** — no
 public URL, no ngrok, no reverse proxy needed. Works from inside a private
 network alongside GasCity.
