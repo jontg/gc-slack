@@ -10,10 +10,10 @@ alerts_channel = "#gascity-alerts"
 
 [gascity]
 # Paths to gc and bd binaries
-gc_path = "/Users/jgretarsson/bin/gc"
-bd_path = "/Users/jgretarsson/bin/bd"
+gc_path = "~/bin/gc"
+bd_path = "~/bin/bd"
 # City root directory
-city_root = "/Users/jgretarsson/Development/GasCity"
+city_root = "~/Development/GasCity"
 
 [patrol]
 # Enable background patrol notifications
@@ -28,8 +28,8 @@ watch_warrants = true
 [users]
 # Map Slack user IDs to GasCity aliases
 # Example:
-# U0B0JRSR916 = "jontg@mimir"
-# U123456789 = "alice@gastown"
+# U0123456789 = "alice@mimir"
+# U987654321 = "bob@gastown"
 
 [commands]
 # Optional: restrict commands to specific users/channels

@@ -13,9 +13,9 @@ import subprocess
 from dataclasses import dataclass
 from typing import Any
 
-GC_PATH = os.environ.get("GC_PATH", "/Users/jgretarsson/bin/gc")
-BD_PATH = os.environ.get("BD_PATH", "/Users/jgretarsson/bin/bd")
-GC_CITY_ROOT = os.environ.get("GC_CITY_ROOT", "/Users/jgretarsson/Development/GasCity")
+GC_PATH = os.environ.get("GC_PATH", os.path.expanduser("~/bin/gc"))
+BD_PATH = os.environ.get("BD_PATH", os.path.expanduser("~/bin/bd"))
+GC_CITY_ROOT = os.environ.get("GC_CITY_ROOT", os.path.expanduser("~/Development/GasCity"))
 
 _GC_ENV: dict[str, str] | None = None
 
@@ -24,7 +24,7 @@ def _env() -> dict[str, str]:
     global _GC_ENV
     if _GC_ENV is None:
         e = os.environ.copy()
-        e["PATH"] = f"/opt/homebrew/bin:/Users/jgretarsson/bin:{e.get('PATH', '')}"
+        e["PATH"] = f"/opt/homebrew/bin:{os.path.expanduser('~/bin')}:{e.get('PATH', '')}"
         _GC_ENV = e
     return _GC_ENV
 

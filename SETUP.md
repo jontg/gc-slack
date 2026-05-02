@@ -87,9 +87,9 @@ SLACK_BOT_TOKEN=xoxb-...
 SLACK_APP_TOKEN=xapp-...
 
 # ── GasCity paths ─────────────────────────────────────────────
-GC_PATH=/Users/jgretarsson/bin/gc
-BD_PATH=/Users/jgretarsson/bin/bd
-GC_CITY_ROOT=/Users/jgretarsson/Development/GasCity
+GC_PATH=~/bin/gc
+BD_PATH=~/bin/bd
+GC_CITY_ROOT=~/Development/GasCity
 
 # ── Patrol alerts ─────────────────────────────────────────────
 # Bot must be /invite'd to this channel
@@ -149,35 +149,35 @@ Create `~/Library/LaunchAgents/com.gascity.slack.plist`:
   <string>com.gascity.slack</string>
   <key>ProgramArguments</key>
   <array>
-    <string>/Users/jgretarsson/Development/gc-slack/.venv/bin/python</string>
-    <string>/Users/jgretarsson/Development/gc-slack/app.py</string>
+    <string>/Users/your-username/Development/gc-slack/.venv/bin/python</string>
+    <string>/Users/your-username/Development/gc-slack/app.py</string>
   </array>
   <key>WorkingDirectory</key>
-  <string>/Users/jgretarsson/Development/gc-slack</string>
+  <string>/Users/your-username/Development/gc-slack</string>
   <key>EnvironmentVariables</key>
   <dict>
     <key>PATH</key>
-    <string>/opt/homebrew/bin:/Users/jgretarsson/bin:/usr/bin:/bin</string>
+    <string>/opt/homebrew/bin:/Users/your-username/bin:/usr/bin:/bin</string>
     <!-- Slack tokens — or load via a .env file and remove these -->
     <key>SLACK_BOT_TOKEN</key>
     <string>xoxb-...</string>
     <key>SLACK_APP_TOKEN</key>
     <string>xapp-...</string>
     <key>GC_PATH</key>
-    <string>/Users/jgretarsson/bin/gc</string>
+    <string>/Users/your-username/bin/gc</string>
     <key>BD_PATH</key>
-    <string>/Users/jgretarsson/bin/bd</string>
+    <string>/Users/your-username/bin/bd</string>
     <key>GC_CITY_ROOT</key>
-    <string>/Users/jgretarsson/Development/GasCity</string>
+    <string>/Users/your-username/Development/GasCity</string>
     <key>GC_SLACK_ALERTS_CHANNEL</key>
     <string>#gascity-alerts</string>
   </dict>
   <key>KeepAlive</key>
   <true/>
   <key>StandardOutPath</key>
-  <string>/Users/jgretarsson/.gc/gc-slack.log</string>
+  <string>/Users/your-username/.gc/gc-slack.log</string>
   <key>StandardErrorPath</key>
-  <string>/Users/jgretarsson/.gc/gc-slack.log</string>
+  <string>/Users/your-username/.gc/gc-slack.log</string>
 </dict>
 </plist>
 ```
@@ -211,5 +211,5 @@ tail -f ~/.gc/gc-slack.log
 | Slash commands do nothing | Make sure the commands are registered AND Interactivity is enabled |
 | Buttons/modals silently fail | Interactivity must be enabled (step 5) |
 | Patrol alerts not appearing | Bot not invited to channel — run `/invite @GasCity` in the alerts channel |
-| `gc` / `bd` commands fail | Check `GC_PATH`, `BD_PATH`, and that `PATH` in launchd includes `/opt/homebrew/bin` and `/Users/jgretarsson/bin` |
+| `gc` / `bd` commands fail | Check `GC_PATH`, `BD_PATH`, and that `PATH` in launchd includes `/opt/homebrew/bin` and `~/bin` |
 | Session peek buttons missing | Known PascalCase bug — already fixed in `blocks.py` |
