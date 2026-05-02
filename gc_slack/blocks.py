@@ -62,8 +62,8 @@ def city_status_blocks(raw_output: str) -> list[dict]:
 # ── Agents ────────────────────────────────────────────────────────────────────
 
 
-def agents_blocks(raw_output: str) -> list[dict]:
-    return [
+def agents_blocks(raw_output: str, sessions: list[dict] | None = None) -> list[dict]:
+    blocks: list[dict] = [
         {
             "type": "header",
             "text": {"type": "plain_text", "text": "👥 Agents", "emoji": True},
@@ -72,16 +72,39 @@ def agents_blocks(raw_output: str) -> list[dict]:
             "type": "section",
             "text": {"type": "mrkdwn", "text": f"```{raw_output.strip()}```"},
         },
+    ]
+
+    # If we have structured session data, add a Peek button per active session
+    if sessions:
+        peek_elements = []
+        for s in sessions:
+            # gc session list --json uses PascalCase keys; fall back to lowercase
+            alias = s.get("Alias") or s.get("alias") or ""
+            # Skip orphaned sessions with no alias (leftover from previous run)
+            if not alias:
+                continue
+            peek_elements.append(_btn(f"👁 {alias}", "gc_peek_open", value=alias))
+            if len(peek_elements) >= 5:  # max 5 buttons per actions block
+                break
+        if peek_elements:
+            blocks += [
+                {"type": "divider"},
+                {"type": "actions", "elements": peek_elements},
+            ]
+
+    blocks += [
         {"type": "divider"},
         {
             "type": "actions",
             "elements": [
                 _btn("🔄 Refresh", "gc_agents_list"),
+                _btn("👁 Peek Agent", "gc_peek_open"),
                 _btn("✉️ Nudge Agent", "gc_nudge_open"),
                 _btn("✉️ Send Mail", "gc_mail_send_open"),
             ],
         },
     ]
+    return blocks
 
 
 # ── Bead Card ─────────────────────────────────────────────────────────────────
@@ -604,6 +627,78 @@ def modal_nudge(initial_target: str = "") -> dict:
             },
         ],
     }
+
+
+def modal_peek_agent(initial_agent: str = "", initial_lines: int = 50) -> dict:
+    return {
+        "type": "modal",
+        "callback_id": "modal_peek_agent",
+        "title": {"type": "plain_text", "text": "Peek Agent"},
+        "submit": {"type": "plain_text", "text": "Peek"},
+        "close": {"type": "plain_text", "text": "Cancel"},
+        "blocks": [
+            {
+                "type": "input",
+                "block_id": "agent",
+                "label": {"type": "plain_text", "text": "Agent"},
+                "element": {
+                    "type": "plain_text_input",
+                    "action_id": "value",
+                    "initial_value": initial_agent,
+                    "placeholder": {
+                        "type": "plain_text",
+                        "text": "e.g. gastown__mayor or mimir/gastown.refinery",
+                    },
+                },
+            },
+            {
+                "type": "input",
+                "block_id": "lines",
+                "optional": True,
+                "label": {"type": "plain_text", "text": "Lines"},
+                "element": {
+                    "type": "static_select",
+                    "action_id": "value",
+                    "initial_option": _opt(str(initial_lines), f"{initial_lines} lines"),
+                    "options": [
+                        _opt("20", "20 lines"),
+                        _opt("50", "50 lines"),
+                        _opt("100", "100 lines"),
+                        _opt("200", "200 lines"),
+                    ],
+                },
+            },
+        ],
+    }
+
+
+def peek_result_blocks(agent: str, output: str, lines: int) -> list[dict]:
+    """Blocks for the peek result posted to the channel after modal submit."""
+    # Slack code blocks have a hard 3000-char limit per block
+    MAX = 2900
+    safe = output.strip()
+    truncated = False
+    if len(safe) > MAX:
+        safe = safe[-MAX:]  # keep the tail (most recent output)
+        truncated = True
+
+    header = f"👁 *{agent}* — last {lines} lines"
+    if truncated:
+        header += "  _(truncated to fit)_"
+
+    return [
+        {"type": "section", "text": {"type": "mrkdwn", "text": header}},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"```{safe}```"}},
+        {"type": "divider"},
+        {
+            "type": "actions",
+            "elements": [
+                _btn("🔄 Peek again", "gc_peek_open", value=agent),
+                _btn("✉️ Nudge", "gc_nudge_open", value=agent),
+                _btn("✉️ Mail", "gc_mail_send_open", value=agent),
+            ],
+        },
+    ]
 
 
 def modal_bead_filter() -> dict:
