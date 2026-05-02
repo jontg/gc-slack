@@ -57,9 +57,9 @@ Edit `.env`:
 SLACK_BOT_TOKEN=xoxb-...
 SLACK_APP_TOKEN=xapp-...
 
-GC_PATH=/Users/jgretarsson/bin/gc
-BD_PATH=/Users/jgretarsson/bin/bd
-GC_CITY_ROOT=/Users/jgretarsson/Development/GasCity
+GC_PATH=~/bin/gc
+BD_PATH=~/bin/bd
+GC_CITY_ROOT=~/Development/GasCity
 
 # Patrol alerts channel (bot must be a member)
 GC_SLACK_ALERTS_CHANNEL=#gascity-alerts
@@ -97,22 +97,22 @@ Create `~/Library/LaunchAgents/com.gascity.slack.plist`:
   <string>com.gascity.slack</string>
   <key>ProgramArguments</key>
   <array>
-    <string>/Users/jgretarsson/Development/gc-slack/.venv/bin/python</string>
-    <string>/Users/jgretarsson/Development/gc-slack/app.py</string>
+    <string>$HOME/Development/gc-slack/.venv/bin/python</string>
+    <string>$HOME/Development/gc-slack/app.py</string>
   </array>
   <key>WorkingDirectory</key>
-  <string>/Users/jgretarsson/Development/gc-slack</string>
+  <string>$HOME/Development/gc-slack</string>
   <key>EnvironmentVariables</key>
   <dict>
     <key>PATH</key>
-    <string>/opt/homebrew/bin:/Users/jgretarsson/bin:/usr/bin:/bin</string>
+    <string>/opt/homebrew/bin:$HOME/bin:/usr/bin:/bin</string>
   </dict>
   <key>KeepAlive</key>
   <true/>
   <key>StandardOutPath</key>
-  <string>/Users/jgretarsson/.gc/gc-slack.log</string>
+  <string>$HOME/.gc/gc-slack.log</string>
   <key>StandardErrorPath</key>
-  <string>/Users/jgretarsson/.gc/gc-slack.log</string>
+  <string>$HOME/.gc/gc-slack.log</string>
 </dict>
 </plist>
 ```
